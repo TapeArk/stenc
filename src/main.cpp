@@ -115,6 +115,7 @@ Mandatory arguments to long options are mandatory for short options too.\n\
 ENC-MODE is one of the following:\n\
   off    Data written to DEVICE will not be encrypted\n\
   on     Data written to DEVICE will be encrypted\n\
+  external     TBA\n\
 \n\
 DEC-MODE is one of the following:\n\
   off    Data read from DEVICE will not be decrypted and only unencrypted\n\
@@ -456,6 +457,8 @@ int main(int argc, char **argv)
         enc_mode = scsi::encrypt_mode::on;
       } else if (arg == "off"s) {
         enc_mode = scsi::encrypt_mode::off;
+      } else if (arg == "external"s) {
+        enc_mode = scsi::encrypt_mode::external;
       } else {
         print_usage(std::cerr);
         std::exit(EXIT_FAILURE);
@@ -585,7 +588,7 @@ int main(int argc, char **argv)
     }
   }
 
-  if (enc_mode != scsi::encrypt_mode::off ||
+  if ((enc_mode != scsi::encrypt_mode::off && enc_mode != scsi::encrypt_mode::external) ||
       (dec_mode != scsi::decrypt_mode::off && dec_mode != scsi::decrypt_mode::raw)) {
     if (keyFile.empty()) {
       std::cerr << "stenc: Encryption key required but no key file specified\n";
@@ -678,7 +681,7 @@ int main(int argc, char **argv)
       std::exit(EXIT_FAILURE);
     }
 
-    if ((enc_mode != scsi::encrypt_mode::off ||
+    if (((enc_mode != scsi::encrypt_mode::off && enc_mode != scsi::encrypt_mode::external) ||
          (dec_mode != scsi::decrypt_mode::off && dec_mode != scsi::decrypt_mode::raw)) &&
         key.size() != ntohs(ad.key_length)) {
       std::cerr << "stenc: Incorrect key size, expected " << std::dec
