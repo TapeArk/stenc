@@ -250,8 +250,10 @@ print_device_status(std::ostream& os, const scsi::page_des& opt,
   os << std::left << column_width << "Reading:";
   switch (opt.decryption_mode) {
   case scsi::decrypt_mode::off:
-  case scsi::decrypt_mode::raw:
     os << "Not decrypting\n";
+    break;
+  case scsi::decrypt_mode::raw:
+    os << "Raw\n";
     break;
   case scsi::decrypt_mode::on:
   case scsi::decrypt_mode::mixed:
@@ -278,6 +280,15 @@ print_device_status(std::ostream& os, const scsi::page_des& opt,
     break;
   case scsi::encrypt_mode::on:
     os << "Encrypting (";
+    if (algorithms.find(opt.algorithm_index) != algorithms.end()) {
+      os << algorithms.at(opt.algorithm_index);
+    } else {
+      os << "algorithm " << static_cast<unsigned int>(opt.algorithm_index);
+    }
+    os << ")\n";
+    break;
+  case scsi::encrypt_mode::external:
+    os << "External (";
     if (algorithms.find(opt.algorithm_index) != algorithms.end()) {
       os << algorithms.at(opt.algorithm_index);
     } else {
