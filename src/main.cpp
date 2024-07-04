@@ -123,6 +123,7 @@ DEC-MODE is one of the following:\n\
          can be read.\n\
   mixed  Data read from DEVICE will be decrypted, if needed. Both encrypted\n\
          and unencrypted records can be read.\n\
+  raw    TBA\n\
 \n\
 INDEX is a number that selects the encryption algorithm and mode to use.\n\
 \n\
@@ -442,6 +443,8 @@ int main(int argc, char **argv)
         dec_mode = scsi::decrypt_mode::off;
       } else if (arg == "mixed"s) {
         dec_mode = scsi::decrypt_mode::mixed;
+      } else if (arg == "raw"s) {
+        dec_mode = scsi::decrypt_mode::raw;
       } else {
         print_usage(std::cerr);
         std::exit(EXIT_FAILURE);
@@ -583,7 +586,7 @@ int main(int argc, char **argv)
   }
 
   if (enc_mode != scsi::encrypt_mode::off ||
-      dec_mode != scsi::decrypt_mode::off) {
+      (dec_mode != scsi::decrypt_mode::off && dec_mode != scsi::decrypt_mode::raw)) {
     if (keyFile.empty()) {
       std::cerr << "stenc: Encryption key required but no key file specified\n";
       std::exit(EXIT_FAILURE);
@@ -676,7 +679,7 @@ int main(int argc, char **argv)
     }
 
     if ((enc_mode != scsi::encrypt_mode::off ||
-         dec_mode != scsi::decrypt_mode::off) &&
+         (dec_mode != scsi::decrypt_mode::off && dec_mode != scsi::decrypt_mode::raw)) &&
         key.size() != ntohs(ad.key_length)) {
       std::cerr << "stenc: Incorrect key size, expected " << std::dec
                 << ntohs(ad.key_length) << " bytes, got " << key.size() << '\n';
